@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'mailing',
 ]
 
 MIDDLEWARE = [
@@ -133,3 +134,12 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny'
     ]
 }
+
+# email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.naver.com'
+EMAIL_USE_TLS = True
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'isuh88@naver.com'
+EMAIL_HOST_PASSWORD = '910179i10s17'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
