@@ -133,9 +133,9 @@ REST_FRAMEWORK = {"DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.All
 
 # email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST = "smtp.naver.com"
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = "isuh88@naver.com"
-EMAIL_HOST_PASSWORD = "910179i10s17"
+EMAIL_HOST = "smtp.naver.com"
+EMAIL_HOST_USER = "naemilham@naver.com"
+EMAIL_HOST_PASSWORD = "soalfgkaSNU"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
