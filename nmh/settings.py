@@ -36,7 +36,6 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -44,7 +43,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "rest_framework.authtoken",
     "mails",
+    "accounts",
 ]
 
 MIDDLEWARE = [
@@ -127,9 +129,13 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-# permissions
+# rest_framework settings
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+}
 
-REST_FRAMEWORK = {"DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"]}
+# dj-rest-auth custom user settings
+AUTH_USER_MODEL = "accounts.User"
 
 # email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
