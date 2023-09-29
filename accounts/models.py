@@ -28,3 +28,14 @@ class User(auth_models.AbstractBaseUser, auth_models.PermissionsMixin):
 
     def __str__(self):
         return self.username
+
+
+class WriterProfile(db_models.Model):
+    user = db_models.OneToOneField(User, on_delete=db_models.CASCADE)
+    self_introduction = db_models.TextField(blank=True)
+    mailing_introduction = db_models.TextField(blank=True)
+    example = db_models.TextField(blank=True)
+
+
+class ReaderProfile(db_models.Model):
+    user = db_models.OneToOneField(User, on_delete=db_models.CASCADE)
