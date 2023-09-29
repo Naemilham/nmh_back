@@ -153,3 +153,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = "isuh88@naver.com"
 EMAIL_HOST_PASSWORD = "910179i10s17"
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# default_auto_field setting
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
