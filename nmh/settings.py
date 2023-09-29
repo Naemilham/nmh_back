@@ -141,7 +141,7 @@ REST_FRAMEWORK = {
 
 # dj-rest-auth, all-auth settings
 AUTH_USER_MODEL = "accounts.User"
-REST_AUTH = {"REGISTER_SERIALIZER": "accounts.serializers.RegisterSerializer"}
+REST_AUTH = {"REGISTER_SERIALIZER": "accounts.serializers.SignupSerializer"}
 ACCOUNT_ADAPTER = "accounts.adapter.UserAdapter"
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
