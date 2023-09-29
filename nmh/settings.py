@@ -45,6 +45,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
     "mails",
     "accounts",
 ]
@@ -57,6 +61,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "nmh.urls"
@@ -134,8 +139,11 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
 }
 
-# dj-rest-auth custom user settings
+# dj-rest-auth, all-auth settings
 AUTH_USER_MODEL = "accounts.User"
+REST_AUTH = {"REGISTER_SERIALIZER": "accounts.serializers.RegisterSerializer"}
+ACCOUNT_ADAPTER = "accounts.adapter.UserAdapter"
+ACCOUNT_EMAIL_VERIFICATION = "none"
 
 # email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
