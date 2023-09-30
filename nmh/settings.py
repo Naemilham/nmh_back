@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
+    "rest_framework_simplejwt",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "allauth",
@@ -137,11 +138,19 @@ STATIC_URL = "/static/"
 # rest_framework settings
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+    ),
 }
 
 # dj-rest-auth, all-auth settings
 AUTH_USER_MODEL = "accounts.User"
-REST_AUTH = {"REGISTER_SERIALIZER": "accounts.serializers.SignupSerializer"}
+REST_AUTH = {
+    "REGISTER_SERIALIZER": "accounts.serializers.SignupSerializer",
+    "USE_JWT": True,
+    "JWT_AUTH_COOKIE": "nmh-auth",
+    "JWT_AUTH_REFRESH_COOKIE": "nmh-refresh-token",
+}
 ACCOUNT_ADAPTER = "accounts.adapter.UserAdapter"
 ACCOUNT_EMAIL_VERIFICATION = "none"
 
