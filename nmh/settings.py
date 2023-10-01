@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "allauth",
@@ -150,9 +152,18 @@ REST_AUTH = {
     "USE_JWT": True,
     "JWT_AUTH_COOKIE": "nmh-auth",
     "JWT_AUTH_REFRESH_COOKIE": "nmh-refresh-token",
+    "JWT_AUTH_HTTPONLY": False,
 }
 ACCOUNT_ADAPTER = "accounts.adapter.UserAdapter"
 ACCOUNT_EMAIL_VERIFICATION = "none"
+
+# simple jwt settings
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+}
 
 # email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
