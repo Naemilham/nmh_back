@@ -3,7 +3,7 @@ from dj_rest_auth.registration import serializers as dj_reg_serializers
 from rest_framework import serializers as rest_serializers
 from rest_framework.validators import UniqueValidator
 
-from accounts.models import User
+from accounts.models import ReaderProfile, User, WriterProfile
 
 
 class SignupSerializer(dj_reg_serializers.RegisterSerializer):
@@ -33,3 +33,26 @@ class SignupSerializer(dj_reg_serializers.RegisterSerializer):
         user.is_reader = self.validated_data.get("is_reader")
         user.save()
         return user
+
+
+class UserSerializer(rest_serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("id", "username", "nickname", "email", "is_writer", "is_reader")
+
+
+class WriterProfileSerializer(rest_serializers.ModelSerializer):
+    class Meta:
+        model = WriterProfile
+        fields = (
+            "self_introduction",
+            "mailing_introduction",
+            "example",
+            "user",
+        )
+
+
+class ReaderProfileSerializer(rest_serializers.ModelSerializer):
+    class Meta:
+        model = ReaderProfile
+        fields = ("user",)
