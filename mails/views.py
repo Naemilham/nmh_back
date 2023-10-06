@@ -1,38 +1,69 @@
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, send_mail
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from nmh.settings import DEFAULT_FROM_EMAIL
 
 from .models import Email
 from .serializer import EmailSerializer
 
 
-class EmailView(APIView):
+class EmailSendView(APIView):
     def get(self, request):  # db에 저장된 이메일을 보내는 것으로 바꿔야 함, 임시로 GET으로 구현
         subject = request.data.get("subject")
         message = request.data.get("message")
         recipient_list = request.data.get("recipient_list")
-        successful_post = send_mail(
-            subject, message, from_email=None, recipient_list=recipient_list
-        )
 
         if subject is None or message is None or recipient_list is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        if successful_post == len(recipient_list):
+        email = EmailMessage(
+            subject=subject,
+            body=message,
+            from_email=DEFAULT_FROM_EMAIL,
+            bcc=recipient_list,
+        )
+
+        success_count = 0  # Count the number of successful sends
+
+        for recipient in recipient_list:
+            email = EmailMessage(  # Create a new email object for each recipient
+                subject=subject,
+                body=message,
+                from_email=DEFAULT_FROM_EMAIL,
+                to=[recipient],
+            )
+
+            try:
+                email.send()
+                success_count += 1  # Increment the count for each successful send
+            except Exception as e:
+                print(e)  # Need to log this error
+
+        if success_count == len(recipient_list):
             response = Response(
                 status=status.HTTP_200_OK,
-                data={"message": "success for all recipients"},
+                data={
+                    "message": "success for all recipients",
+                    "success_count": success_count,
+                },
             )
-        elif successful_post == 0:
+        elif success_count == 0:
             response = Response(
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                data={"message": "failed for all recipients"},
+                data={
+                    "message": "failed for all recipients",
+                    "success_count": success_count,
+                },
             )
         else:
             response = Response(
-                status=status.HTTP_207_MULTI_STATUS,
-                data={"message": "fail for some recipients"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                data={
+                    "message": "failed for some recipients",
+                    "success_count": success_count,
+                },
             )
 
         return response
