@@ -7,6 +7,7 @@ _Features_:
 _Implementing Now_:
 - 이메일 인증
 - 이메일 발송 및 저장
+- GetUser, GetAllUser API
 
 _To be Implemented_:
 - 이메일 발송 여부 검증
