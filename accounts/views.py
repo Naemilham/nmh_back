@@ -3,8 +3,12 @@ from dj_rest_auth.views import UserDetailsView, UserListView
 from rest_framework.permissions import IsAuthenticated
 
 from accounts.serializers import (
-    ReaderProfileSerializer, UserSerializer, WriterProfileSerializer,
+    ReaderProfileSerializer,
+    UserSerializer,
+    WriterProfileSerializer,
 )
+
+from .models import User
 
 
 class SignupView(dj_reg_views.RegisterView):
@@ -26,5 +30,11 @@ class UserInfoView(UserDetailsView):
             return UserSerializer
 
 
-class UserListView(UserListView):
-    pass
+class WriterListView(UserListView):
+    query_set = User.objects.filter(is_writer=True)
+    serializer_class = WriterProfileSerializer
+
+
+class ReaderListView(UserListView):
+    query_set = User.objects.filter(is_reader=True)
+    serializer_class = ReaderProfileSerializer
