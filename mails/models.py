@@ -3,6 +3,7 @@ from django.db import models
 
 
 class Email(models.Model):
+    id = models.AutoField(primary_key=True)
     subject = models.CharField(max_length=100)
     message = models.TextField()
     writer = models.CharField(max_length=20)
