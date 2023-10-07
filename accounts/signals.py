@@ -8,7 +8,7 @@ def create_profile(sender, instance, created, **kwargs):
         user = instance
         if user.is_writer:
             models.WriterProfile.objects.create(user=user)
-        else:
+        elif user.is_reader:
             models.ReaderProfile.objects.create(user=user)
 
 
