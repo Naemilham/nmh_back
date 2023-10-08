@@ -7,8 +7,8 @@ urlpatterns = [
     urls.path("signup/", accounts_views.SignupView.as_view()),
     urls.path("signin/", accounts_views.SigninView.as_view()),
     urls.path("signout/", accounts_views.SignoutView.as_view()),
-    urls.path("writers/", account_views.WriterListView().as_view()),
-    urls.path("readers/", account_views.ReaderListView().as_view()),
+    urls.path("writers/", accounts_views.WriterListView().as_view()),
+    urls.path("readers/", accounts_views.ReaderListView().as_view()),
     urls.path("api/token/", jwt_views.TokenObtainPairView.as_view()),
     urls.path("api/token/refresh/", jwt_views.TokenRefreshView.as_view()),
 ]
