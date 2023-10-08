@@ -1,9 +1,10 @@
 from allauth.socialaccount.models import EmailAddress
 from dj_rest_auth.registration import serializers as dj_reg_serializers
+from dj_rest_auth.serializers import UserDetailsSerializer
 from rest_framework import serializers as rest_serializers
 from rest_framework.validators import UniqueValidator
 
-from accounts.models import User
+from accounts.models import ReaderProfile, User, WriterProfile
 
 
 class SignupSerializer(dj_reg_serializers.RegisterSerializer):
@@ -33,3 +34,32 @@ class SignupSerializer(dj_reg_serializers.RegisterSerializer):
         user.is_reader = self.validated_data.get("is_reader")
         user.save()
         return user
+
+
+class UserSerializer(UserDetailsSerializer):
+    class Meta:
+        model = User
+        fields = (
+            "username",
+            "nickname",
+            "email",
+            "is_writer",
+            "is_reader",
+        )
+
+
+class WriterProfileSerializer(UserDetailsSerializer):
+    class Meta:
+        model = WriterProfile
+        fields = (
+            "user",
+            "self_introduction",
+            "mailing_introduction",
+            "example",
+        )
+
+
+class ReaderProfileSerializer(UserDetailsSerializer):
+    class Meta:
+        model = ReaderProfile
+        fields = ("user",)
