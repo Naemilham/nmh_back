@@ -1,6 +1,11 @@
+import random
+import string
+
 from django.contrib.auth import models as auth_models
 from django.contrib.auth import validators
+from django.core.mail import send_mail
 from django.db import models as db_models
+from django.utils import timezone
 
 from accounts import managers
 
@@ -39,3 +44,37 @@ class WriterProfile(db_models.Model):
 
 class ReaderProfile(db_models.Model):
     user = db_models.OneToOneField(User, on_delete=db_models.CASCADE)
+
+
+class VerificationEmail(db_models.Model):
+    email = db_models.EmailField(unique=True, null=True)
+    verification_code = db_models.TextField(null=True)
+    is_verified = db_models.BooleanField(default=False)
+    sent_at = db_models.DateTimeField(null=True)
+
+    @property
+    def code(self):
+        """
+        영어 대소문자 + 숫자로 이루어진 12자리 인증 코드 생성하는 메소드
+        """
+        LENGTH = 12
+        string_pool = string.ascii_letters + string.digits
+        _code = ""
+
+        for _ in range(LENGTH):
+            _code += random.choice(string_pool)
+
+        return _code
+
+    def send(self, request):
+        """
+        인증 메일 발송을 요청한 메일 주소로 메일을 발송하는 메소드
+        """
+        subject = "내밀함 회원가입 인증 메일"
+        message = self.code
+        recipient = [request.data.get("email")]
+        send_mail(subject, message, from_email=None, recipient_list=recipient)
+
+        self.verification_code = message
+        self.sent_at = timezone.now()
+        self.save()
