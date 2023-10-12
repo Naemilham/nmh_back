@@ -7,7 +7,6 @@ class Email(models.Model):
     subject = models.CharField(max_length=100)
     message = models.TextField()
     writer = models.CharField(max_length=20)
-    recipient_list = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(auto_now=True)
     is_sent = models.BooleanField(default=False)

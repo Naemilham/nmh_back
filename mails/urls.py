@@ -1,9 +1,9 @@
 from django.urls import path
 
-from .views import EmailSaveView, EmailSendView
+from .views import EmailSaveView, EmailView
 
 app_name = "mails"
 urlpatterns = [
-    path("send/", EmailSendView.as_view()),
+    path("", EmailView.as_view()),
     path("save/", EmailSaveView.as_view()),
 ]
