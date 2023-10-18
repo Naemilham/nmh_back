@@ -52,29 +52,38 @@ class VerificationEmail(db_models.Model):
     is_verified = db_models.BooleanField(default=False)
     sent_at = db_models.DateTimeField(null=True)
 
-    @property
-    def code(self):
+    def create_verification_code(self):
         """
         영어 대소문자 + 숫자로 이루어진 12자리 인증 코드 생성하는 메소드
         """
         LENGTH = 12
         string_pool = string.ascii_letters + string.digits
-        _code = ""
+        code = ""
 
         for _ in range(LENGTH):
-            _code += random.choice(string_pool)
+            code += random.choice(string_pool)
 
-        return _code
+        return code
 
-    def send(self, request):
+    @property
+    def _verification_code(self):
+        return self.create_verification_code()
+
+    def send_verification_mail(self, request):
         """
         인증 메일 발송을 요청한 메일 주소로 메일을 발송하는 메소드
         """
         subject = "내밀함 회원가입 인증 메일"
-        message = self.code
+        message = self._verification_code
         recipient = [request.data.get("email")]
-        send_mail(subject, message, from_email=None, recipient_list=recipient)
+        is_successfully_sent = send_mail(
+            subject, message, from_email=None, recipient_list=recipient
+        )
 
-        self.verification_code = message
-        self.sent_at = timezone.now()
-        self.save()
+        if is_successfully_sent:
+            self.verification_code = message
+            self.sent_at = timezone.now()
+            self.save()
+            return True
+
+        return False
