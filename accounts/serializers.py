@@ -47,6 +47,20 @@ class SendVerificationEmailSerializer(rest_serializers.ModelSerializer):
         fields = ("email",)
 
 
+class VerifyEmailSerializer(rest_serializers.ModelSerializer):
+    class Meta:
+        model = VerificationEmail
+        fields = (
+            "verification_code",
+            "is_verified",
+        )
+
+    def update(self, instance, validated_data):
+        instance.is_verified = True
+        instance.save()
+        return instance
+
+
 class UserSerializer(UserDetailsSerializer):
     class Meta:
         model = User
