@@ -81,9 +81,17 @@ class VerificationEmail(db_models.Model):
         )
 
         if is_successfully_sent:
-            self.verification_code = message
+            self.verification_code = message[:]
             self.sent_at = timezone.now()
             self.save()
             return True
 
+        return False
+
+    def verify_email(self, verification_code, request):
+        """
+        사용자가 입력한 인증 번호가 서버에서 발급한 인증 번호와 일치하는지 확인하는 메소드
+        """
+        if verification_code == request.data.get("verification_code"):
+            return True
         return False
