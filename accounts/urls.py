@@ -11,10 +11,10 @@ urlpatterns = [
         "send-verification-email/", accounts_views.SendVerificationEmailView.as_view()
     ),
     urls.path(
-        "resend-verification-email/",
+        "resend-verification-email/<int:pk>/",
         accounts_views.ResendVerificationEmailView.as_view(),
     ),
-    urls.path("verify-email/", accounts_views.VerifyEmailView.as_view()),
+    urls.path("verify-email/<int:pk>/", accounts_views.VerifyEmailView.as_view()),
     urls.path("writers/", accounts_views.WriterListView().as_view()),
     urls.path("readers/", accounts_views.ReaderListView().as_view()),
     urls.path("api/token/", jwt_views.TokenObtainPairView.as_view()),
