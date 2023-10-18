@@ -44,7 +44,10 @@ class SendVerificationEmailSerializer(rest_serializers.ModelSerializer):
 
     class Meta:
         model = VerificationEmail
-        fields = ("email",)
+        fields = (
+            "id",
+            "email",
+        )
 
 
 class VerifyEmailSerializer(rest_serializers.ModelSerializer):
