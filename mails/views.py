@@ -36,7 +36,7 @@ class EmailView(APIView):
 
         subject = request.data.get("subject")
         message = request.data.get("message")
-        recipient_list = request.data.get("recipient_list")
+        recipient_list = request.data.get("recipient_list")  # TODO
 
         if subject is None or message is None or recipient_list is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -99,5 +99,30 @@ class EmailSaveView(APIView):
         else:
             response = Response(
                 data=serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
+        return response
+
+    def put(self, request):
+        email_id = request.data.get("email_id")
+
+        try:
+            email = Email.objects.get(id=email_id)
+        except Email.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        subject = request.data.get("subject")
+        message = request.data.get("message")
+
+        if subject is None or message is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        serialiizer = EmailSerializer(email, data=request.data, partial=True)
+
+        if serialiizer.is_valid():
+            serialiizer.save()
+            response = Response(data=serialiizer.data, status=status.HTTP_200_OK)
+        else:
+            response = Response(
+                data=serialiizer.errors, status=status.HTTP_400_BAD_REQUEST
             )
         return response
