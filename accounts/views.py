@@ -10,6 +10,7 @@ from accounts.serializers import (
     ReaderProfileSerializer,
     SendVerificationEmailSerializer,
     UserSerializer,
+    VerifyEmailSerializer,
     WriterProfileSerializer,
 )
 
@@ -60,8 +61,26 @@ class ResendVerificationEmailView(generics.UpdateAPIView):
     pass
 
 
-class VerifyEmailView(generics.RetrieveAPIView):
-    pass
+class VerifyEmailView(generics.UpdateAPIView):
+    queryset = VerificationEmail.objects.all()
+    serializer_class = VerifyEmailSerializer
+
+    def update(self, request, *args, **kwargs):
+        """
+        사용자로부터 인증을 요청받은 이메일이 이미 인증되었는지 확인하고,
+        만약 미인증 상태라면 입력받은 인증 코드가 서버에서 발송한 인증 코드와 일치하는지 확인하는 메소드
+        """
+        partial = True
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        if instance.is_verified:
+            return Response({"detail": "이미 인증 완료된 이메일입니다."})
+        if instance.verify_email(instance.verification_code, request):
+            self.perform_update(serializer)
+            return Response(serializer.data)
+        return Response({"detail: 인증 번호가 일치하지 않습니다."})
 
 
 # TODO: define UserInfoView for retrieve, update, delete user info using dj_rest_auth
