@@ -42,12 +42,16 @@ class SendVerificationEmailView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
 
         email = self.get_queryset().filter(**serializer.validated_data).first()
-        if email and not email.is_verified:
-            email.send(request)
+        if email.send_verification_mail(request):
+            return Response(
+                {"detail": "인증 메일이 발송되었습니다."},
+                status=status.HTTP_201_CREATED,
+                headers=headers,
+            )
 
         return Response(
-            {"detail": "인증 메일이 발송되었습니다."},
-            status=status.HTTP_201_CREATED,
+            {"detail": "인증 메일 발송에 실패했습니다."},
+            status=status.HTTP_502_BAD_GATEWAY,
             headers=headers,
         )
 
