@@ -83,6 +83,8 @@ class VerificationEmail(db_models.Model):
         if is_successfully_sent:
             self.verification_code = message[:]
             self.sent_at = timezone.now()
+            if self.is_verified:
+                self.is_verified = False
             self.save()
             return True
 
