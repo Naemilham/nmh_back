@@ -58,7 +58,17 @@ class SendVerificationEmailView(generics.CreateAPIView):
 
 
 class ResendVerificationEmailView(generics.UpdateAPIView):
-    pass
+    queryset = VerificationEmail.objects.all()
+    serializer_class = SendVerificationEmailSerializer
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        email = self.get_object()
+        if not email.send_verification_mail(serializer):
+            return Response(
+                {"detail": "인증 메일 발송에 실패했습니다."},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
 
 
 class VerifyEmailView(generics.UpdateAPIView):
