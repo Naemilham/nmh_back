@@ -87,13 +87,15 @@ class EmailView(APIView):
 
 class EmailSaveView(APIView):
     def post(self, request):
-        subject = request.data.get("subject")
-        message = request.data.get("message")
-        writer = request.data.get("writer")
+        # subject = request.data.get("subject")
+        # message = request.data.get("message")
+        # writer = request.data.get("writer")
 
-        serializer = EmailSerializer(subject=subject, message=message, writer=writer)
+        # exception handling
 
-        if serializer.is_valid():
+        serializer = EmailSerializer(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             response = Response(data=serializer.data, status=status.HTTP_201_CREATED)
         else:
