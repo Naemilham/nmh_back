@@ -25,8 +25,8 @@ class EmailView(APIView):
         return response
 
     def post(self, request):
-        # DB에서 가져온 이메일을 보내는 것으로 바꿔야 함
         email_id = request.data.get("email_id")
+
         try:
             email = Email.objects.get(id=email_id)
         except Email.DoesNotExist:
@@ -34,11 +34,16 @@ class EmailView(APIView):
 
         # subject, message, writer는 DB에서 가져오고 recipient_list는 writer의 writerProfile에서 subscribing_readers를 가져옴
 
-        subject = request.data.get("subject")
-        message = request.data.get("message")
-        recipient_list = request.data.get(
-            "recipient_list"
-        )  # TODO with subscription model
+        subject = email.subject
+        message = email.message
+        email.categories
+
+        recipient_list = request.data.get("recipient_list")
+
+        # TODO with subscription model
+        # subscriber_list = Subscribtion.objects.filter(writer=writer)
+        # recipient_list = subscriber_list.values_list("reader", flat=True)
+        # subscriber_list 중 메일 수신을 원치 않는 경우 필터링
 
         if subject is None or message is None or recipient_list is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
