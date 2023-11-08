@@ -36,7 +36,9 @@ class EmailView(APIView):
 
         subject = request.data.get("subject")
         message = request.data.get("message")
-        recipient_list = request.data.get("recipient_list")  # TODO
+        recipient_list = request.data.get(
+            "recipient_list"
+        )  # TODO with subscription model
 
         if subject is None or message is None or recipient_list is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -93,11 +95,13 @@ class EmailView(APIView):
 class EmailSaveView(APIView):
     # 이메일 저장하는 API
     def post(self, request):
-        # subject = request.data.get("subject")
-        # message = request.data.get("message")
-        # writer = request.data.get("writer")
+        subject = request.data.get("subject")
+        message = request.data.get("message")
+        writer = request.data.get("writer")
 
         # exception handling
+        if subject is None or message is None or writer is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
         serializer = EmailSerializer(data=request.data)
 
