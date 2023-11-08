@@ -23,7 +23,9 @@ class Email(models.Model):
     def get_absolute_url(self):
         return reverse("mails:email_save_view", kwargs={"pk": self.pk})
 
+    # db의 모든 레코드를 삭제하는 메서드
     @classmethod
     def _truncate(cls):
         with connection.cursor() as cursor:
+            # SQLite3가 아닌 경우 TRUNCATE 사용 구문으로 변경
             cursor.execute("DELETE FROM {}".format(Email._meta.db_table))

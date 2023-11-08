@@ -84,12 +84,14 @@ class EmailView(APIView):
 
         return response
 
+    # 이메일 DB 전체 삭제하는 API
     def delete(self, request):
         Email._truncate()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class EmailSaveView(APIView):
+    # 이메일 저장하는 API
     def post(self, request):
         # subject = request.data.get("subject")
         # message = request.data.get("message")
@@ -108,6 +110,7 @@ class EmailSaveView(APIView):
             )
         return response
 
+    # 이메일 수정하는 API
     def put(self, request):
         email_id = request.data.get("email_id")
 
@@ -133,6 +136,7 @@ class EmailSaveView(APIView):
             )
         return response
 
+    # 개별 이메일 삭제하는 API
     def delete(self, request):
         email_id = request.data.get("email_id")
 
