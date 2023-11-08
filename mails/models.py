@@ -17,6 +17,8 @@ class Email(models.Model):
     edited_at = models.DateTimeField(auto_now=True)
     sent_at = models.DateTimeField(null=True)
 
+    categories = models.ManyToManyField("Category", through="EmailCategory")
+
     def __str__(self):
         return self.subject
 
