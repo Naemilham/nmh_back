@@ -48,7 +48,8 @@ class EmailView(APIView):
         if subject is None or message is None or recipient_list is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
-        success_count = 0  # Count the number of successful sends
+        # 메일 송신에 성공한 수
+        success_count = 0
 
         for recipient in recipient_list:
             email = EmailMessage(  # Create a new email object for each recipient
