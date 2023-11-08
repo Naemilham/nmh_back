@@ -84,6 +84,10 @@ class EmailView(APIView):
 
         return response
 
+    def delete(self, request):
+        Email._truncate()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class EmailSaveView(APIView):
     def post(self, request):
@@ -128,3 +132,14 @@ class EmailSaveView(APIView):
                 data=serialiizer.errors, status=status.HTTP_400_BAD_REQUEST
             )
         return response
+
+    def delete(self, request):
+        email_id = request.data.get("email_id")
+
+        try:
+            email = Email.objects.get(id=email_id)
+        except Email.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        email.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -1,5 +1,5 @@
 # Create your models here.
-from django.db import models
+from django.db import connection, models
 from django.urls import reverse
 
 
@@ -22,3 +22,8 @@ class Email(models.Model):
 
     def get_absolute_url(self):
         return reverse("mails:email_save_view", kwargs={"pk": self.pk})
+
+    @classmethod
+    def _truncate(cls):
+        with connection.cursor() as cursor:
+            cursor.execute("DELETE FROM {}".format(Email._meta.db_table))
