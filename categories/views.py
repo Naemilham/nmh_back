@@ -1,5 +1,6 @@
-from rest_framework import APIView, status
+from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .models import Category
 from .serializers import CategorySerializer
@@ -12,6 +13,18 @@ class CategoryListView(APIView):
 
 
 class CategoryDetailView(APIView):
+    def get(self, request):
+        category_name = request.data.get("category_name")
+
+        if category_name is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            category = Category.objects.get(category_name=category_name)
+            return Response(status=status.HTTP_200_OK, data=category)
+        except Category.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
     def post(self, request):
         category_name = request.data.get("category_name")
 
