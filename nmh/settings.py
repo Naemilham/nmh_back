@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 import environ
@@ -36,7 +37,6 @@ ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
 
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -44,8 +44,18 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "accounts",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
     "mails",
+    "accounts",
+    "categories",
 ]
 
 MIDDLEWARE = [
@@ -56,6 +66,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
 ]
 
 ROOT_URLCONF = "nmh.urls"
@@ -128,9 +139,33 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-# permissions
+# rest_framework settings
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"],
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "dj_rest_auth.jwt_auth.JWTCookieAuthentication",
+    ),
+}
 
-REST_FRAMEWORK = {"DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.AllowAny"]}
+# dj-rest-auth, all-auth settings
+AUTH_USER_MODEL = "accounts.User"
+REST_AUTH = {
+    "REGISTER_SERIALIZER": "accounts.serializers.SignupSerializer",
+    "USE_JWT": True,
+    "JWT_AUTH_COOKIE": "nmh-auth",
+    "JWT_AUTH_REFRESH_COOKIE": "nmh-refresh-token",
+    "JWT_AUTH_HTTPONLY": False,
+}
+ACCOUNT_ADAPTER = "accounts.adapter.UserAdapter"
+ACCOUNT_EMAIL_VERIFICATION = "none"
+
+# simple jwt settings
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+}
 
 # email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
@@ -140,3 +175,6 @@ EMAIL_HOST = "smtp.naver.com"
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# default_auto_field setting
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
