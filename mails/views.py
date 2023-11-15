@@ -40,9 +40,9 @@ class EmailView(APIView):
 
         recipient_list = request.data.get("recipient_list")
 
-        # TODO with subscription model
-        # subscriber_list = Subscribtion.objects.filter(writer=writer)
-        # recipient_list = subscriber_list.values_list("reader", flat=True)
+        # with subscription model
+        # subscriber_list = Subscribtion.objects.filter(subscribed_user=writer)
+        # recipient_list = subscriber_list.values_list("subscribing_user", flat=True)
         # subscriber_list 중 메일 수신을 원치 않는 경우 필터링
 
         if subject is None or message is None or recipient_list is None:
