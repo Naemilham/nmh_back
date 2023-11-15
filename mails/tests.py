@@ -123,5 +123,6 @@ class EmailSaveTest(TestCase):
         response_save = EmailSaveView.as_view()(request_send)
 
         result = Email.objects.get(id=email_id).is_successfully_sent
+        # TODO: 제대로 전송되는지 다시 확인!
         self.assertTrue(result)
         self.assertIn(request_save.status_code, [200, 207])
