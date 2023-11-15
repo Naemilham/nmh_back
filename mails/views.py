@@ -62,6 +62,7 @@ class EmailView(APIView):
             try:
                 email.send()
                 success_count += 1  # Increment the count for each successful send
+                email.is_successfully_sent = True
             except Exception as e:
                 print(e)  # Need to log this error
 
@@ -83,7 +84,7 @@ class EmailView(APIView):
             )
         else:
             response = Response(
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                status=status.HTTP_207_MULTI_STATUS,
                 data={
                     "message": "failed for some recipients",
                     "success_count": success_count,
