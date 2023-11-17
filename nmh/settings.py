@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "mails",
     "accounts",
     "subscription",
+    "categories",
 ]
 
 MIDDLEWARE = [
