@@ -3,7 +3,7 @@ from django.test import RequestFactory, TestCase
 from faker import Faker
 
 from .models import Email
-from .views import EmailSaveView
+from .views import EmailSaveView, EmailView
 
 User = get_user_model()
 
@@ -11,29 +11,7 @@ fake = Faker()
 dummy_subject = fake.sentence(nb_words=6)
 dummy_message = fake.paragraph(nb_sentences=4)
 dummy_writer = fake.first_name()
-
-# class EmailSaveViewTest(TestCase):
-#     def setUp(self):
-#         self.email = EmailFactory()
-#         self.user = User.objects.create_user(
-#             username="testuser", password="testpass", email="test@test.com"
-#         )
-
-#     def test_email_save_view(self):
-#         self.client.login(username="testuser", password="testpass")
-#         print(self.email.__dict__)
-#         response = self.client.post(
-#             resolve_url("mails:email_save_view"), data=self.email.__dict__
-#         )
-#         self.assertEqual(response.status_code, 200)
-#         self.assertEqual(response.data["subject"], self.email.subject)
-#         self.assertEqual(response.data["message"], self.email.message)
-#         self.assertEqual(response.data["writer"], self.email.writer)
-#         self.assertEqual(response.data["is_sent"], self.email.is_sent)
-#         self.assertEqual(
-#             response.data["is_successfully_sent"], self.email.is_successfully_sent
-#         )
-#         self.assertEqual(response.data["is_read"], self.email.is_read)
+dummy_recipient_list = [fake.email() for _ in range(5)]
 
 
 class EmailSaveTest(TestCase):
@@ -117,12 +95,14 @@ class EmailSaveTest(TestCase):
             "mails/send/",
             data={
                 "email_id": email_id,
+                "recipient_list": dummy_recipient_list,
             },
+            content_type="application/json",
         )
 
-        response_save = EmailSaveView.as_view()(request_send)
+        response_send = EmailView.as_view()(request_send)
 
-        result = Email.objects.get(id=email_id).is_successfully_sent
+        result = Email.objects.get(id=email_id).is_sent
         # TODO: 제대로 전송되는지 다시 확인!
         self.assertTrue(result)
-        self.assertIn(request_save.status_code, [200, 207])
+        self.assertIn(response_send.status_code, [200, 207])
