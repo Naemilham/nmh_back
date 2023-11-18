@@ -43,7 +43,7 @@ class EmailView(APIView):
         # with subscription model
         # subscriber_list = Subscribtion.objects.filter(subscribed_user=writer)
         # recipient_list = subscriber_list.values_list("subscribing_user", flat=True)
-        # subscriber_list 중 메일 수신을 원치 않는 경우 필터링
+        # subscriber_list 중 메일 수신을 원치 않는 경우 필터링(categories_id 활용)
 
         if subject is None or message is None or recipient_list is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -52,7 +52,8 @@ class EmailView(APIView):
         success_count = 0
 
         for recipient in recipient_list:
-            email = EmailMessage(  # Create a new email object for each recipient
+            print(recipient)
+            letter = EmailMessage(  # Create a new email object for each recipient
                 subject=subject,
                 body=message,
                 from_email=DEFAULT_FROM_EMAIL,
@@ -60,9 +61,11 @@ class EmailView(APIView):
             )
 
             try:
-                email.send()
-                success_count += 1  # Increment the count for each successful send
-                email.is_successfully_sent = True
+                result = letter.send(fail_silently=True)
+                success_count += result  # Increment the count for each successful send
+                email.is_sent = True
+                email.is_successfully_sent = True if result else False
+                email.save()  # 업데이트 내용 저장
             except Exception as e:
                 print(e)  # Need to log this error
 
