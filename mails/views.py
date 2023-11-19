@@ -1,4 +1,5 @@
 from django.core.mail import EmailMessage
+from django.template.loader import render_to_string
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -35,6 +36,7 @@ class EmailView(APIView):
         # subject, message, writer는 DB에서 가져오고 recipient_list는 writer의 writerProfile에서 subscribing_readers를 가져옴
 
         subject = email.subject
+        writer = email.writer
         message = email.message
         email.categories
 
@@ -50,15 +52,19 @@ class EmailView(APIView):
 
         # 메일 송신에 성공한 수
         success_count = 0
+        email_html = render_to_string(
+            "email_template.html",
+            {"subject": subject, "writer": writer, "message": message},
+        )
 
         for recipient in recipient_list:
-            print(recipient)
             letter = EmailMessage(  # Create a new email object for each recipient
                 subject=subject,
-                body=message,
                 from_email=DEFAULT_FROM_EMAIL,
                 to=[recipient],
             )
+            letter.content_subtype = "html"  # Set the content type to HTML
+            letter.body = email_html  # Set the HTML body
 
             try:
                 result = letter.send(fail_silently=True)
@@ -104,6 +110,7 @@ class EmailView(APIView):
 
 class EmailSaveView(APIView):
     # 이메일 저장하는 API
+    # request body : "subject", "message", "writer"
     def post(self, request):
         subject = request.data.get("subject")
         message = request.data.get("message")
