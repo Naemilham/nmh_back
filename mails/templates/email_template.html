@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{subject}}</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+
+        .letter-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .closing {
+            font-size: 18px;
+            font-style: italic;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="letter-container">
+        <div class="header">Dear {{writer}},</div>
+
+        <div class="message">
+            <p>I hope this letter finds you well. As the fall leaves gracefully descend, I wanted to take a moment to express my sentiments.</p>
+            <p>{{message}}</p>
+        </div>
+
+        <div class="closing">
+            <p>With warm regards,</p>
+            <p>Your Friend</p>
+        </div>
+    </div>
+</body>
+</html>
