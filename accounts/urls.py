@@ -20,4 +20,5 @@ urlpatterns = [
     urls.path("api/token/", jwt_views.TokenObtainPairView.as_view()),
     urls.path("api/token/refresh/", jwt_views.TokenRefreshView.as_view()),
     urls.path("info/<int:pk>/", accounts_views.UserInfoView.as_view()),
+    urls.path("all-users/", accounts_views.AllUsersListView.as_view()),
 ]

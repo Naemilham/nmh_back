@@ -125,3 +125,8 @@ class WriterListView(ListAPIView):
 class ReaderListView(ListAPIView):
     query_set = User.objects.filter(is_reader=True)
     serializer_class = ReaderProfileSerializer
+
+
+class AllUsersListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
