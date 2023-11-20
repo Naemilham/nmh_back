@@ -77,6 +77,8 @@ class UserSerializer(UserDetailsSerializer):
 
 
 class WriterProfileSerializer(UserDetailsSerializer):
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = WriterProfile
         fields = (
@@ -88,6 +90,8 @@ class WriterProfileSerializer(UserDetailsSerializer):
 
 
 class ReaderProfileSerializer(UserDetailsSerializer):
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = ReaderProfile
         fields = ("user",)
