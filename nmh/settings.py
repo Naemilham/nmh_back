@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "mails",
     "accounts",
+    "subscription",
     "categories",
 ]
 
