@@ -118,12 +118,12 @@ class UserInfoView(generics.RetrieveUpdateAPIView):
 
 
 class WriterListView(ListAPIView):
-    query_set = User.objects.filter(is_writer=True)
+    queryset = WriterProfile.objects.all()
     serializer_class = WriterProfileSerializer
 
 
 class ReaderListView(ListAPIView):
-    query_set = User.objects.filter(is_reader=True)
+    queryset = ReaderProfile.objects.all()
     serializer_class = ReaderProfileSerializer
 
 
