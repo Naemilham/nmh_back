@@ -17,8 +17,8 @@ urlpatterns = [
     urls.path("verify-email/<int:pk>/", accounts_views.VerifyEmailView.as_view()),
     urls.path("writers/", accounts_views.WriterListView().as_view()),
     urls.path("readers/", accounts_views.ReaderListView().as_view()),
-    urls.path("api/token/", jwt_views.TokenObtainPairView.as_view()),
-    urls.path("api/token/refresh/", jwt_views.TokenRefreshView.as_view()),
+    urls.path("token/", jwt_views.TokenObtainPairView.as_view()),
+    urls.path("token/refresh/", jwt_views.TokenRefreshView.as_view()),
     urls.path("info/<int:pk>/", accounts_views.UserInfoView.as_view()),
     urls.path("users/", accounts_views.AllUsersListView.as_view()),
 ]
