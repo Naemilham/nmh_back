@@ -239,9 +239,9 @@ LOGGING = {
 # email settings
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = True
-EMAIL_PORT_SMTP = 587
+EMAIL_PORT = 587
 EMAIL_PORT_IMAP = 993
-EMAIL_HOST_SMTP = "smtp.naver.com"
+EMAIL_HOST = "smtp.naver.com"
 EMAIL_HOST_IMAP = "imap.naver.com"
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
