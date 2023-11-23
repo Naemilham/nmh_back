@@ -2,9 +2,9 @@ from dj_rest_auth import views as dj_auth_views
 from dj_rest_auth.registration import views as dj_reg_views
 from rest_framework import generics, status
 from rest_framework.generics import ListAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
+from accounts import permissions as accounts_permissions
 from accounts.serializers import (
     ReaderProfileSerializer,
     SendVerificationEmailSerializer,
@@ -94,7 +94,7 @@ class VerifyEmailView(generics.UpdateAPIView):
 
 # TODO: define UserInfoView for retrieve, update, delete user info using dj_rest_auth
 class UserInfoView(generics.RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [accounts_permissions.IsOwner]
 
     def get_serializer_class(self):
         user = self.request.user
