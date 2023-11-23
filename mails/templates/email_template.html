@@ -1,52 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko-kr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{subject}}</title>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            line-height: 1.6;
-            margin: 20px;
-        }
-
-        .letter-container {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .header {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-
-        .message {
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        .closing {
-            font-size: 18px;
-            font-style: italic;
-            margin-top: 20px;
-        }
-    </style>
+    <title>{{ subject }}</title>
 </head>
-<body>
-    <div class="letter-container">
-        <div class="header">Dear {{writer}},</div>
+<body style="font-family: 'Arial', sans-serif; line-height: 1.6; margin: 20px; background-color: #f8f8f8;">
 
-        <div class="message">
-            <p>I hope this letter finds you well. As the fall leaves gracefully descend, I wanted to take a moment to express my sentiments.</p>
-            <p>{{message}}</p>
+    <div style="max-width: 600px; margin: 0 auto; background-color: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h1 style="font-size: 28px; color: #333;">{{ subject }}</h1>
+            <p style="font-size: 14px; color: #666;">From: {{ writer }}</p>
         </div>
 
-        <div class="closing">
-            <p>With warm regards,</p>
-            <p>Your Friend</p>
+        <div style="font-size: 16px; margin-bottom: 20px; color: #444;">
+            <p>{{ message }}</p>
+        </div>
+
+        <div style="font-size: 18px; font-style: italic; margin-top: 20px; color: #666;">
+            <p>내밀함</p>
         </div>
     </div>
+
 </body>
 </html>
