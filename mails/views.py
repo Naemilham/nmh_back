@@ -1,6 +1,6 @@
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from rest_framework import status
+from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -10,21 +10,17 @@ from .models import Email
 from .serializer import EmailSerializer
 
 
-class EmailView(APIView):
-    def get(self, request):
-        # DB에서 주어진 id에 맞는 이메일 반환
-        email_id = request.data.get("email_id")
+class EmailListView(generics.ListCreateAPIView):
+    queryset = Email.objects.all()
+    serializer_class = EmailSerializer
 
-        try:
-            email = Email.objects.get(id=email_id)
-            response = Response(
-                data=EmailSerializer(email).data, status=status.HTTP_200_OK
-            )
-        except Email.DoesNotExist:
-            response = Response(status=status.HTTP_404_NOT_FOUND)
 
-        return response
+class EmailDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Email.objects.all()
+    serializer_class = EmailSerializer
 
+
+class EmailSendView(APIView):
     def post(self, request):
         email_id = request.data.get("email_id")
 
@@ -40,11 +36,15 @@ class EmailView(APIView):
         message = email.message
         email.categories
 
+        # user = User.objects.get(username=writer)
+        # writer_id = WriterProfile.objects.get(user).id
+
         recipient_list = request.data.get("recipient_list")
 
         # with subscription model
-        # subscriber_list = Subscribtion.objects.filter(subscribed_user=writer)
-        # recipient_list = subscriber_list.values_list("subscribing_user", flat=True)
+        # subscibing_readers = WriterProfile.objects.get(id=writer_id).subscribing_readers
+        # recipient_list = subscibing_readers.values_list("email", flat=True)
+
         # subscriber_list 중 메일 수신을 원치 않는 경우 필터링(categories_id 활용)
 
         if subject is None or message is None or recipient_list is None:
@@ -101,70 +101,3 @@ class EmailView(APIView):
             )
 
         return response
-
-    # 이메일 DB 전체 삭제하는 API
-    def delete(self, request):
-        Email._truncate()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class EmailSaveView(APIView):
-    # 이메일 저장하는 API
-    # request body : "subject", "message", "writer"
-    def post(self, request):
-        subject = request.data.get("subject")
-        message = request.data.get("message")
-        writer = request.data.get("writer")
-
-        # exception handling
-        if subject is None or message is None or writer is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        serializer = EmailSerializer(data=request.data)
-
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            response = Response(data=serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            response = Response(
-                data=serializer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
-        return response
-
-    # 이메일 수정하는 API
-    def put(self, request):
-        email_id = request.data.get("email_id")
-
-        try:
-            email = Email.objects.get(id=email_id)
-        except Email.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        subject = request.data.get("subject")
-        message = request.data.get("message")
-
-        if subject is None or message is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
-
-        serialiizer = EmailSerializer(email, data=request.data, partial=True)
-
-        if serialiizer.is_valid():
-            serialiizer.save()
-            response = Response(data=serialiizer.data, status=status.HTTP_200_OK)
-        else:
-            response = Response(
-                data=serialiizer.errors, status=status.HTTP_400_BAD_REQUEST
-            )
-        return response
-
-    # 개별 이메일 삭제하는 API
-    def delete(self, request):
-        email_id = request.data.get("email_id")
-
-        try:
-            email = Email.objects.get(id=email_id)
-        except Email.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        email.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
