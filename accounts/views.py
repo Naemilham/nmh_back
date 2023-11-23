@@ -87,11 +87,17 @@ class VerifyEmailView(generics.UpdateAPIView):
         serializer.is_valid(raise_exception=True)
 
         if instance.is_verified:
-            return Response({"detail": "이미 인증 완료된 이메일입니다."})
-        if instance.verify_email(instance.verification_code, request):
-            self.perform_update(serializer)
-            return Response(serializer.data)
-        return Response({"detail: 인증 번호가 일치하지 않습니다."})
+            return Response(
+                {"detail": "이미 인증 완료된 이메일입니다."}, status=status.HTTP_409_CONFLICT
+            )
+        if instance.verify_email_time(instance.sent_at, request):
+            if instance.verify_email_code(instance.verification_code, request):
+                self.perform_update(serializer)
+                return Response(serializer.data)
+            return Response(
+                {"detail: 인증 번호가 일치하지 않습니다."}, status=status.HTTP_409_CONFLICT
+            )
+        return Response({"detail: 인증 제한 시간이 초과하였습니다."}, status=status.HTTP_409_CONFLICT)
 
 
 # TODO: define UserInfoView for retrieve, update, delete user info using dj_rest_auth
