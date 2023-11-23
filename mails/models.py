@@ -7,7 +7,9 @@ class Email(models.Model):
     id = models.AutoField(primary_key=True)
     subject = models.CharField(max_length=100)
     message = models.TextField()
-    writer = models.CharField(max_length=20)
+    writer = models.ForeignKey(
+        "accounts.WriterProfile", on_delete=models.CASCADE, related_name="writer_email"
+    )
 
     is_sent = models.BooleanField(default=False)
     is_successfully_sent = models.BooleanField(default=False)
