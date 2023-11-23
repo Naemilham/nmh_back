@@ -1,11 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.test import RequestFactory, TestCase
 from faker import Faker
 
+from accounts.models import User, WriterProfile
+
 from .models import Email
 from .views import EmailSaveView, EmailView
-
-User = get_user_model()
 
 fake = Faker()
 dummy_subject = fake.sentence(nb_words=6)
@@ -18,15 +17,18 @@ class EmailSaveTest(TestCase):
     # 전체 테스트에 적용되는 데이터
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user(
-            username="testuser",
-            password="testpass",
-            email="test@test.com",
-            nickname="testnick",
-        )
         cls.valid_email = Email.objects.create(
             subject=dummy_subject, message=dummy_message, writer=dummy_writer
         )
+        cls.writer = User.objects.create_user(
+            username=dummy_writer,
+            password="testpass",
+            email="writer@writer.com",
+            nickname="writer",
+            is_reader=False,
+            is_writer=True,
+        )
+        cls.writerProfile = WriterProfile.objects.create(user=cls.writer)
 
     # 트랜잭션에 의해 테스트 별로 롤백되는 데이터
     def setUp(self):
