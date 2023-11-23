@@ -1,5 +1,6 @@
 import random
 import string
+from datetime import timedelta
 
 from django.contrib.auth import models as auth_models
 from django.contrib.auth import validators
@@ -90,10 +91,17 @@ class VerificationEmail(db_models.Model):
 
         return False
 
-    def verify_email(self, verification_code, request):
+    def verify_email_time(self, sent_at, request):
+        """
+        사용자가 인증 제한 시간 내에 인증 번호를 입력했는지 확인하는 메소드
+        """
+        TIME_LIMIT = 3
+
+        return (timezone.now() - sent_at) <= timedelta(minutes=TIME_LIMIT)
+
+    def verify_email_code(self, verification_code, request):
         """
         사용자가 입력한 인증 번호가 서버에서 발급한 인증 번호와 일치하는지 확인하는 메소드
         """
-        if verification_code == request.data.get("verification_code"):
-            return True
-        return False
+
+        return verification_code == request.data.get("verification_code")
