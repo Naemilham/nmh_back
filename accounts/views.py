@@ -1,6 +1,6 @@
 from dj_rest_auth import views as dj_auth_views
 from dj_rest_auth.registration import views as dj_reg_views
-from rest_framework import generics, status
+from rest_framework import generics, permissions, status
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 
@@ -25,7 +25,7 @@ class SigninView(dj_auth_views.LoginView):
 
 
 class SignoutView(dj_auth_views.LogoutView):
-    pass
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class SendVerificationEmailView(generics.CreateAPIView):
