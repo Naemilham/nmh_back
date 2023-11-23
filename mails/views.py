@@ -63,13 +63,15 @@ class EmailSendView(APIView):
                 from_email=DEFAULT_FROM_EMAIL,
                 to=[recipient],
             )
-            letter.content_subtype = "html"  # Set the content type to HTML
-            letter.body = email_html  # Set the HTML body
+
+            # 발송 메일 형식을 지정된 HTML 양식으로 포맷
+            letter.content_subtype = "html"
+            letter.body = email_html
 
             try:
+                email.is_sent = True
                 result = letter.send(fail_silently=True)
                 success_count += result  # Increment the count for each successful send
-                email.is_sent = True
                 email.is_successfully_sent = True if result else False
                 email.save()  # 업데이트 내용 저장
             except Exception as e:
