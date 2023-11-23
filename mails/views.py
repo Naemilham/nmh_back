@@ -29,19 +29,18 @@ class EmailSendView(APIView):
         except Email.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
-        # subject, message, writer는 DB에서 가져오고 recipient_list는 writer의 writerProfile에서 subscribing_readers를 가져옴
-
         subject = email.subject
         writer = email.writer
         message = email.message
-        email.categories
 
-        # user = User.objects.get(username=writer)
+        # 메일 카테고리명 리스트
+        categories = email.categories.values_list("category_name", flat=True)
+
         # writer_id = WriterProfile.objects.get(user).id
 
         recipient_list = request.data.get("recipient_list")
 
-        # with subscription model
+        # 구독 중인 reader들의 이메일 주소를 리스트로 저장
         # subscibing_readers = WriterProfile.objects.get(id=writer_id).subscribing_readers
         # recipient_list = subscibing_readers.values_list("email", flat=True)
 
@@ -52,16 +51,25 @@ class EmailSendView(APIView):
 
         # 메일 송신에 성공한 수
         success_count = 0
+
+        # HTML 양식에 맞춰 메일 내용을 렌더링
         email_html = render_to_string(
             "email_template.html",
-            {"subject": subject, "writer": writer, "message": message},
+            {
+                "subject": subject,
+                "writer": writer,
+                "message": message,
+                "categories": categories,
+            },
         )
 
         for recipient in recipient_list:
-            letter = EmailMessage(  # Create a new email object for each recipient
+            # 메일 발송 객체 생성
+            letter = EmailMessage(
                 subject=subject,
                 from_email=DEFAULT_FROM_EMAIL,
                 to=[recipient],
+                reply_to=["isuh88@gmail.com"],
             )
 
             # 발송 메일 형식을 지정된 HTML 양식으로 포맷
@@ -69,11 +77,17 @@ class EmailSendView(APIView):
             letter.body = email_html
 
             try:
+                # 메일 발송
                 email.is_sent = True
+
+                # 메일 발송에 성공하면 success_count를 1 증가
                 result = letter.send(fail_silently=True)
-                success_count += result  # Increment the count for each successful send
+                success_count += result
+
+                # 메일 발송에 성공하면 is_successfully_sent를 True로 변경
                 email.is_successfully_sent = True if result else False
-                email.save()  # 업데이트 내용 저장
+
+                email.save()
             except Exception as e:
                 print(e)  # Need to log this error
 

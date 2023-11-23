@@ -18,7 +18,12 @@
         </div>
 
         <div style="font-size: 18px; font-style: italic; margin-top: 20px; color: #666;">
-            <p>내밀함</p>
+            <p>Categories:</p>
+            <ul>
+                {% for category in categories %}
+                    <li>{{ category }}</li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 
