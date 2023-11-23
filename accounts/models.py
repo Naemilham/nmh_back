@@ -48,8 +48,8 @@ class ReaderProfile(db_models.Model):
 
 
 class VerificationEmail(db_models.Model):
-    email = db_models.EmailField(unique=True, null=True)
-    verification_code = db_models.TextField(null=True)
+    email = db_models.EmailField(default=None)
+    verification_code = db_models.TextField(blank=True, null=True)
     is_verified = db_models.BooleanField(default=False)
     sent_at = db_models.DateTimeField(null=True)
 
