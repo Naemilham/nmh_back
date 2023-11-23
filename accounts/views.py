@@ -38,13 +38,15 @@ class SendVerificationEmailView(generics.CreateAPIView):
         """
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+        if self.queryset.filter(email=serializer.validated_data["email"]).exists():
+            self.queryset.get(email=serializer.validated_data["email"]).delete()
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
 
         email = self.get_queryset().filter(**serializer.validated_data).first()
         if email.send_verification_mail(request):
             return Response(
-                {"detail": "인증 메일이 발송되었습니다."},
+                serializer.data,
                 status=status.HTTP_201_CREATED,
                 headers=headers,
             )
