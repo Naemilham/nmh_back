@@ -54,7 +54,12 @@ class VerifyEmailSerializer(rest_serializers.ModelSerializer):
     class Meta:
         model = VerificationEmail
         fields = (
+            "email",
             "verification_code",
+            "is_verified",
+        )
+        read_only_fields = (
+            "email",
             "is_verified",
         )
 
