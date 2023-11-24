@@ -1,6 +1,5 @@
 from dj_rest_auth import views as dj_auth_views
 from dj_rest_auth.registration import views as dj_reg_views
-from dj_rest_auth.views import UserDetailsView
 from rest_framework import generics, status
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
@@ -14,7 +13,7 @@ from accounts.serializers import (
     WriterProfileSerializer,
 )
 
-from .models import User, VerificationEmail
+from .models import ReaderProfile, User, VerificationEmail, WriterProfile
 
 
 class SignupView(dj_reg_views.RegisterView):
@@ -94,7 +93,7 @@ class VerifyEmailView(generics.UpdateAPIView):
 
 
 # TODO: define UserInfoView for retrieve, update, delete user info using dj_rest_auth
-class UserInfoView(UserDetailsView):
+class UserInfoView(generics.RetrieveUpdateAPIView):
     permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
@@ -107,12 +106,27 @@ class UserInfoView(UserDetailsView):
         else:
             return UserSerializer
 
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_writer:
+            return WriterProfile.objects.all()
+        elif user.is_reader:
+            return ReaderProfile.objects.all()
+        else:
+            return User.objects.all()
+
 
 class WriterListView(ListAPIView):
-    query_set = User.objects.filter(is_writer=True)
+    queryset = WriterProfile.objects.all()
     serializer_class = WriterProfileSerializer
 
 
 class ReaderListView(ListAPIView):
-    query_set = User.objects.filter(is_reader=True)
+    queryset = ReaderProfile.objects.all()
     serializer_class = ReaderProfileSerializer
+
+
+class AllUsersListView(generics.ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
