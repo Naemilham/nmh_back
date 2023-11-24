@@ -1,7 +1,8 @@
-import html
+import email
 import imaplib
 import logging
 import re
+from datetime import datetime
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -10,6 +11,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from accounts.models import WriterProfile
 from nmh.settings import DEFAULT_FROM_EMAIL
 
 from .models import Email
@@ -96,7 +98,7 @@ class EmailSendView(APIView):
         )
 
         # 고정된 메일 헤더 있을 시 추후 포함
-        formatted_subject = f"[내밀함/{writer.id}] {subject}"
+        formatted_subject = f"[내밀함] {subject}"
 
         for recipient in recipient_list:
             # 메일 발송 객체 생성
@@ -160,7 +162,7 @@ class EmailReplyView(APIView):
     pattern = re.compile(r'charset="UTF-8".*?<div dir=3D"ltr">(.*?)</div>', re.DOTALL)
 
     def post(self, request):
-        # 메일 서버 연결 후 로그인
+        # 메일 서버 연결
         try:
             logger.debug("Connecting to mail server...")
 
@@ -173,6 +175,7 @@ class EmailReplyView(APIView):
             logger.error(e)
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        # 메일 서버 로그인
         try:
             logger.debug("Connecting to mail account...")
 
@@ -186,16 +189,14 @@ class EmailReplyView(APIView):
 
         logger.debug("Successfully connected to mail server.")
 
-        # 메일 UTF8 인코딩 설정 및 메일함 선택
-        # mail.enable("UTF8=ACCEPT")                        # naver 메일은 지원하지 않음
+        # 메일함 선택
         mail.select("_reply")
 
         logger.debug("Successfully selected '_reply' mail box.")
 
-        # writer_encoded = request.data.get("writer").encode("utf-8")
-        request.data.get("writer")
-        # logger.debug(f"writer_encoded: {writer}")
+        # writer = request.data.get("writer")
 
+        # 메일함에 있는 읽지 않은 메일의 id를 리스트로 저장
         result, data = mail.search(None, "UNSEEN")
         if result == "OK":
             email_ids = data[0].split()
@@ -209,24 +210,75 @@ class EmailReplyView(APIView):
 
         email_content_list = []
 
+        # 읽지 않은 메일 id별로 반복
         for email_id in email_ids:
             result, msg_data = mail.fetch(email_id, "(RFC822)")
-            raw_email = msg_data[0][1]
-            email_content_list.append([email_id, raw_email])
+            raw_email = msg_data[0][1].decode("utf-8")
+            email_message = email.message_from_string(raw_email)
 
-            match = self.pattern.search(raw_email.decode("utf-8"))
-            if match:
-                encoded_text = match.group(1)
-                decoded_text = html.unescape(encoded_text)
-                unicode_text = decoded_text = html.unescape(
-                    encoded_text.replace("=", "%").encode("utf-8").decode("utf-8")
+            # 답장 메일 헤더 정보
+            from_email = email_message["From"]
+
+            subject, encoding = email.header.decode_header(email_message["Subject"])[0]
+            subject = subject.decode(encoding)
+
+            temp, _ = email.header.decode_header(email_message["Date"])[0]
+            temp = datetime.strptime(temp, "%a, %d %b %Y %H:%M:%S %z")
+            date = temp.strftime("%Y년 %M월 %D일")
+
+            body = None
+
+            # 답장 메일 내용
+            if email_message.is_multipart():
+                for part in email_message.get_payload():
+                    if (
+                        part.get_content_type() == "text/plain"
+                        or part.get_content_type() == "text/html"
+                    ):
+                        body = part.get_payload(decode=True).decode("utf-8")
+                        break
+
+            # 답장 메일 내용 분리
+            if body:
+                reply_content_match = re.search(
+                    r"^(.+?)(?:\d{4}년 \d{1,2}월 \d{1,2}일)", body, re.DOTALL
                 )
-                # 메일 객체 생성
-                logger.debug(f"Encoded text: {encoded_text}")
-                logger.debug(f"Decoded_text: {decoded_text}")
-                logger.debug(f"Unicode text: {unicode_text}")
+                reply_content = (
+                    reply_content_match.group(1).strip()
+                    if reply_content_match
+                    else None
+                )
 
-        # 메일함 삭제 및 연결 해제
+                writer_match = re.search(r"From: (.+)", body)
+                writer = writer_match.group(1).strip() if writer_match else None
+            else:
+                logger.info("Failed to fetch reply content from email body.")
+                return Response(status=status.HTTP_204_NO_CONTENT)
+
+            writerProfile = WriterProfile.objects.get(user__nickname=writer)
+            writer_email = writerProfile.user.email
+
+            # 메일 객체 생성
+            reply = EmailMessage(
+                subject=f"{subject} from {from_email} at {date}",
+                body=reply_content,
+                from_email=[DEFAULT_FROM_EMAIL],
+                to=[writer_email],
+                reply_to=[from_email],
+            )
+
+            # 메일 발송
+            try:
+                reply.send(fail_silently=True)
+                logger.info("Successfully sent reply email.")
+            except Exception as e:
+                logger.error(e)
+                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+            # 메일 읽음으로 표시
+            mail.store(email_id, "+FLAGS", "\\Seen")
+
+        # 메일함 연결 해제
         mail.close()
 
         # 메일 서버 로그아웃
