@@ -155,6 +155,7 @@ REST_AUTH = {
     "JWT_AUTH_COOKIE": "nmh-auth",
     "JWT_AUTH_REFRESH_COOKIE": "nmh-refresh-token",
     "JWT_AUTH_HTTPONLY": False,
+    "SESSION_LOGIN": False,
 }
 ACCOUNT_ADAPTER = "accounts.adapter.UserAdapter"
 ACCOUNT_EMAIL_VERIFICATION = "none"

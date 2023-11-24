@@ -28,6 +28,18 @@ class SignupSerializer(dj_reg_serializers.RegisterSerializer):
             "is_reader": self.validated_data.get("is_reader", ""),
         }
 
+    def validate(self, data):
+        if data["password1"] != data["password2"]:
+            raise rest_serializers.ValidationError(
+                ("The two password fields didn't match.")
+            )
+        if (
+            not VerificationEmail.objects.filter(email=data["email"]).exists()
+            or not VerificationEmail.objects.get(email=data["email"]).is_verified
+        ):
+            raise rest_serializers.ValidationError(("Given email is not verified."))
+        return data
+
     def save(self, request):
         user = super().save(request)
         user.nickname = self.validated_data.get("nickname")
@@ -54,7 +66,12 @@ class VerifyEmailSerializer(rest_serializers.ModelSerializer):
     class Meta:
         model = VerificationEmail
         fields = (
+            "email",
             "verification_code",
+            "is_verified",
+        )
+        read_only_fields = (
+            "email",
             "is_verified",
         )
 
