@@ -6,6 +6,9 @@ class Category(db_models.Model):
     category_name = db_models.CharField(max_length=100, unique=True)
     related_mails = db_models.ManyToManyField("mails.Email", through="EmailCategory")
 
+    def __str__(self):
+        return self.category_name
+
 
 class EmailCategory(db_models.Model):
     id = db_models.AutoField(primary_key=True)
