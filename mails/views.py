@@ -74,11 +74,11 @@ class EmailSendView(APIView):
 
         # is_reply_to_me = email.writer.is_reply_to_me
 
-        recipient_list = request.data.get("recipient_list")
+        # recipient_list = request.data.get("recipient_list")
 
         # 구독 중인 reader들의 이메일 주소를 리스트로 저장
-        # subscribing_readers = email.writer.subscribing_readers
-        # recipient_list = subscibing_readers.values_list("email", flat=True)
+        subscribing_readers = email.writer.subscribing_readers
+        recipient_list = subscribing_readers.values_list("user__email", flat=True)
 
         if subject is None or message is None or recipient_list is None:
             return Response(status=status.HTTP_400_BAD_REQUEST)
@@ -272,6 +272,7 @@ class EmailReplyView(APIView):
                 reply.send(fail_silently=True)
                 logger.info("Successfully sent reply email.")
             except Exception as e:
+                logger.debug(f"from_email: {from_email}, to: {writer_email}")
                 logger.error(e)
                 return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
