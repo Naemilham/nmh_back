@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     "accounts",
     "subscription",
     "categories",
+    "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -68,7 +69,28 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
+
+# cors allow settings
+CORS_ALLOWED_ORIGINS = [
+    "http://127.0.0.1:3000",
+    "http://localhost:3000",
+    "http://183.101.249.46:3000",
+]
+
+# cookie allow settings
+CORS_ALLOW_CREDENTIALS = True
+
+# cors header settings
+CORS_ALLOW_HEADERS = (
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+)
 
 ROOT_URLCONF = "nmh.urls"
 
