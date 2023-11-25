@@ -31,9 +31,17 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, ".env"))
 SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "3.36.252.42", "naemilham.site"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "3.36.252.42",
+    "naemilham.site",
+    "183.101.249.46",
+    "naemilham.store",
+    "76.76.21.21",
+]
 
 
 # Application definition
@@ -75,14 +83,20 @@ MIDDLEWARE = [
 CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
-    "http://183.101.249.46:3000",  # jaewon
+    "https://183.101.249.46:3000",
+    "https://naemilham.store",
+    "http://naemilham.store",
+    "https://76.76.21.21",
 ]
 
 # cors allow settings
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3000",
-    "http://183.101.249.46:3000",  # jaewon
+    "http://183.101.249.46:3000",
+    "http://naemilham.store",
+    "https://naemilham.store",
+    "https://76.76.21.21",
 ]
 
 # cookie allow settings
@@ -96,6 +110,7 @@ CORS_ALLOW_HEADERS = (
     "user-agent",
     "x-csrftoken",
     "x-requested-with",
+    "csrftoken",
 )
 
 ROOT_URLCONF = "nmh.urls"
