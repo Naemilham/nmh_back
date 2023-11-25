@@ -61,7 +61,9 @@ class EmailSendView(APIView):
         try:
             email = Email.objects.get(id=email_id)
         except Email.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                status=status.HTTP_404_NOT_FOUND, data={"message": "email not found"}
+            )
 
         subject = email.subject
         message = email.message
@@ -72,16 +74,16 @@ class EmailSendView(APIView):
         # 메일 카테고리명 리스트
         categories = email.categories.values_list("category_name", flat=True)
 
-        # is_reply_to_me = email.writer.is_reply_to_me
-
-        # recipient_list = request.data.get("recipient_list")
+        # TODO: 답장 메일을 writer의 이메일 주소로 보내는 설정 추가
 
         # 구독 중인 reader들의 이메일 주소를 리스트로 저장
         subscribing_readers = email.writer.subscribing_readers
         recipient_list = subscribing_readers.values_list("user__email", flat=True)
 
-        if subject is None or message is None or recipient_list is None:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+        if recipient_list is None:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST, data={"message": "no subscribers"}
+            )
 
         # 메일 송신에 성공한 수
         success_count = 0
@@ -159,8 +161,6 @@ class EmailSendView(APIView):
 
 
 class EmailReplyView(APIView):
-    pattern = re.compile(r'charset="UTF-8".*?<div dir=3D"ltr">(.*?)</div>', re.DOTALL)
-
     def post(self, request):
         # 메일 서버 연결
         try:
@@ -194,24 +194,36 @@ class EmailReplyView(APIView):
 
         logger.debug("Successfully selected '_reply' mail box.")
 
-        # writer = request.data.get("writer")
-
         # 메일함에 있는 읽지 않은 메일의 id를 리스트로 저장
         result, data = mail.search(None, "UNSEEN")
+
         if result == "OK":
             email_ids = data[0].split()
-
-        # 읽지 않은 메일이 없을 경우
         else:
             logger.info("Failed to fetch email ids from '_reply' mail box.")
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        # 읽지 않은 메일이 없을 경우
+        if data[0] == b"":
+            logger.info("No unread email in '_reply' mail box")
+
+            # 메일함 연결 해제
+            mail.close()
+
+            # 메일 서버 로그아웃
+            mail.logout()
+            return Response(
+                status=status.HTTP_204_NO_CONTENT, data={"message": "no unread email"}
+            )
 
         logger.info("Successfully fetched email ids from '_reply' mail box.")
 
-        email_content_list = []
-
         # 읽지 않은 메일 id별로 반복
         for email_id in email_ids:
+            # 메일 읽음으로 표시
+            mail.store(email_id, "+FLAGS", "\\Seen")
+
+            # 메일 내용 가져오기
             result, msg_data = mail.fetch(email_id, "(RFC822)")
             raw_email = msg_data[0][1].decode("utf-8")
             email_message = email.message_from_string(raw_email)
@@ -272,12 +284,12 @@ class EmailReplyView(APIView):
                 reply.send(fail_silently=True)
                 logger.info("Successfully sent reply email.")
             except Exception as e:
-                logger.debug(f"from_email: {from_email}, to: {writer_email}")
+                logger.debug(f"to: {writer_email}")
                 logger.error(e)
-                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-            # 메일 읽음으로 표시
-            mail.store(email_id, "+FLAGS", "\\Seen")
+                return Response(
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    data={"message": f"{str(e)} to {writer_email}"},
+                )
 
         # 메일함 연결 해제
         mail.close()
@@ -287,7 +299,7 @@ class EmailReplyView(APIView):
 
         response = Response(
             status=status.HTTP_200_OK,
-            data={"message": "success", "mail content": email_content_list},
+            data={"message": "success for reply email"},
         )
 
         return response
