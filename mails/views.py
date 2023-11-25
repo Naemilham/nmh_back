@@ -77,12 +77,13 @@ class EmailSendView(APIView):
         # TODO: 답장 메일을 writer의 이메일 주소로 보내는 설정 추가
 
         # 구독 중인 reader들의 이메일 주소를 리스트로 저장
-        recipient_list = []
-
         subscribing_readers = email.writer.subscribing_readers
-        recipient_list = subscribing_readers.values_list("user__email", flat=True)
+        recipient_list = list(subscribing_readers.values_list("user__email", flat=True))
 
-        if recipient_list == []:
+        logger.debug(f"recipient_list: {recipient_list}")
+
+        # 구독 중인 reader가 없을 경우
+        if not recipient_list:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST, data={"message": "no subscribers"}
             )
