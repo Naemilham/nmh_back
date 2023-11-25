@@ -180,6 +180,7 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = "accounts.User"
 REST_AUTH = {
     "REGISTER_SERIALIZER": "accounts.serializers.SignupSerializer",
+    "USER_DETAILS_SERIALIZER": "accounts.serializers.UserSerializer",
     "USE_JWT": True,
     "JWT_AUTH_COOKIE": "nmh-auth",
     "JWT_AUTH_REFRESH_COOKIE": "nmh-refresh-token",
