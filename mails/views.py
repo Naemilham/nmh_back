@@ -201,7 +201,10 @@ class EmailReplyView(APIView):
             email_ids = data[0].split()
         else:
             logger.info("Failed to fetch email ids from '_reply' mail box.")
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={"message": "Failed to fetch email ids from '_reply' mail box."},
+            )
 
         # 읽지 않은 메일이 없을 경우
         if data[0] == b"":
