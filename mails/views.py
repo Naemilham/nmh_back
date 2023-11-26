@@ -78,9 +78,12 @@ class EmailSendView(APIView):
 
         # 구독 중인 reader들의 이메일 주소를 리스트로 저장
         subscribing_readers = email.writer.subscribing_readers
-        recipient_list = subscribing_readers.values_list("user__email", flat=True)
+        recipient_list = list(subscribing_readers.values_list("user__email", flat=True))
 
-        if recipient_list is None:
+        logger.debug(f"recipient_list: {recipient_list}")
+
+        # 구독 중인 reader가 없을 경우
+        if not recipient_list:
             return Response(
                 status=status.HTTP_400_BAD_REQUEST, data={"message": "no subscribers"}
             )
@@ -201,7 +204,10 @@ class EmailReplyView(APIView):
             email_ids = data[0].split()
         else:
             logger.info("Failed to fetch email ids from '_reply' mail box.")
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST,
+                data={"message": "Failed to fetch email ids from '_reply' mail box."},
+            )
 
         # 읽지 않은 메일이 없을 경우
         if data[0] == b"":
