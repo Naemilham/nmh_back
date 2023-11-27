@@ -65,6 +65,12 @@ class EmailSendView(APIView):
                 status=status.HTTP_404_NOT_FOUND, data={"message": "email not found"}
             )
 
+        # 이미 발송된 메일일 경우
+        if email.is_successfully_sent:
+            return Response(
+                status=status.HTTP_400_BAD_REQUEST, data={"message": "already sent"}
+            )
+
         subject = email.subject
         message = email.message
 
@@ -79,6 +85,9 @@ class EmailSendView(APIView):
         # 구독 중인 reader들의 이메일 주소를 리스트로 저장
         subscribing_readers = email.writer.subscribing_readers
         recipient_list = list(subscribing_readers.values_list("user__email", flat=True))
+        recipient_nickname = list(
+            subscribing_readers.values_list("user__nickname", flat=True)
+        )
 
         logger.debug(f"recipient_list: {recipient_list}")
 
@@ -105,7 +114,10 @@ class EmailSendView(APIView):
         # 고정된 메일 헤더 있을 시 추후 포함
         formatted_subject = f"[내밀함] {subject}"
 
-        for recipient in recipient_list:
+        for idx, recipient in enumerate(recipient_list):
+            # 메일 내용 독자에 맞게 대치
+            email_html_replaced = email_html.replace("$reader", recipient_nickname[idx])
+
             # 메일 발송 객체 생성
             letter = EmailMessage(
                 subject=formatted_subject,
@@ -116,7 +128,7 @@ class EmailSendView(APIView):
 
             # 발송 메일 형식을 지정된 HTML 양식으로 포맷
             letter.content_subtype = "html"
-            letter.body = email_html
+            letter.body = email_html_replaced
 
             try:
                 # 메일 발송
