@@ -1,8 +1,10 @@
 import email
 import imaplib
 import logging
+import os
 import re
 from datetime import datetime
+from email.mime.image import MIMEImage
 
 from django.conf import settings
 from django.core.mail import EmailMessage
@@ -66,10 +68,10 @@ class EmailSendView(APIView):
             )
 
         # 이미 발송된 메일일 경우
-        if email.is_successfully_sent:
-            return Response(
-                status=status.HTTP_400_BAD_REQUEST, data={"message": "already sent"}
-            )
+        # if email.is_successfully_sent:
+        #     return Response(
+        #         status=status.HTTP_400_BAD_REQUEST, data={"message": "already sent"}
+        #     )
 
         subject = email.subject
         message = email.message
@@ -111,6 +113,24 @@ class EmailSendView(APIView):
             },
         )
 
+        # 이미지 경로 지정
+        image_path = os.path.join(settings.STATIC_ROOT, "banner.png")
+
+        try:
+            with open(image_path, "rb") as image_file:
+                image_data = image_file.read()
+        except FileNotFoundError:
+            logger.error(f"File not found: {image_path}")
+            return Response(
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                data={"message": "cannot find image"},
+            )
+
+        # 이미지 파일을 MIMEImage 객체로 변환
+        image = MIMEImage(image_data)
+        image.add_header("Content-ID", "banner_image")
+        image.add_header("Content-Disposition", "inline")
+
         # 고정된 메일 헤더 있을 시 추후 포함
         formatted_subject = f"[내밀함] {subject}"
 
@@ -129,6 +149,7 @@ class EmailSendView(APIView):
             # 발송 메일 형식을 지정된 HTML 양식으로 포맷
             letter.content_subtype = "html"
             letter.body = email_html_replaced
+            letter.attach(image)
 
             try:
                 # 메일 발송
@@ -251,6 +272,8 @@ class EmailReplyView(APIView):
 
             subject, encoding = email.header.decode_header(email_message["Subject"])[0]
             subject = subject.decode(encoding)
+
+            # TODO: 원하는 경우 제목에 태그 삽입으로 실명 메일 발송
 
             temp, _ = email.header.decode_header(email_message["Date"])[0]
             temp = datetime.strptime(temp, "%a, %d %b %Y %H:%M:%S %z")
