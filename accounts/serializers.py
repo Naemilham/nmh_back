@@ -33,11 +33,11 @@ class SignupSerializer(dj_reg_serializers.RegisterSerializer):
             raise rest_serializers.ValidationError(
                 ("The two password fields didn't match.")
             )
-        # if (
-        #     not VerificationEmail.objects.filter(email=data["email"]).exists()
-        #     or not VerificationEmail.objects.get(email=data["email"]).is_verified
-        # ):
-        #     raise rest_serializers.ValidationError(("Given email is not verified."))
+        if (
+            not VerificationEmail.objects.filter(email=data["email"]).exists()
+            or not VerificationEmail.objects.get(email=data["email"]).is_verified
+        ):
+            raise rest_serializers.ValidationError(("Given email is not verified."))
         return data
 
     def save(self, request):
