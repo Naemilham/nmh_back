@@ -5,13 +5,13 @@ from subscription import models, permissions, serializers
 
 
 class SubscribeView(generics.CreateAPIView):
-    permission_classes = [permissions.IsReader]
+    permission_classes = [permissions.IsReader, permissions.IsSelf]
     queryset = models.Subscription.objects.all()
     serializer_class = serializers.SubscribeSerializer
 
 
 class UnsubscribeView(generics.CreateAPIView):
-    permission_classes = [permissions.IsReader]
+    permission_classes = [permissions.IsReader, permissions.IsSelf]
     queryset = models.Subscription.objects.all()
     serializer_class = serializers.UnsubscribeSerializer
 
