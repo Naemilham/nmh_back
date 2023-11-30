@@ -182,6 +182,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = "/static/"
+STATICFILES_DIR = [
+    BASE_DIR / "static",
+    os.path.join(BASE_DIR, "mails", "static"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # rest_framework settings
 REST_FRAMEWORK = {
