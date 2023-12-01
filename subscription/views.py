@@ -1,6 +1,9 @@
-from rest_framework import generics, status
+from rest_framework import generics
+from rest_framework import permissions as rest_permissions
+from rest_framework import status
 from rest_framework.response import Response
 
+from accounts import serializers as accounts_serializers
 from subscription import models, permissions, serializers
 
 
@@ -30,3 +33,25 @@ class UnsubscribeView(generics.CreateAPIView):
         else:
             return Response(status=status.HTTP_404_NOT_FOUND, headers=headers)
         return Response(status=status.HTTP_200_OK, headers=headers)
+
+
+class SubscribingWritersListView(generics.ListAPIView):
+    permission_classes = [rest_permissions.IsAuthenticated]
+    queryset = models.Subscription.objects.all()
+    serializer_class = accounts_serializers.WriterProfileSerializer
+
+    def get_queryset(self):
+        user = self.request.user.readerprofile
+        print(user)
+        return user.subscribing_writers.all()
+
+
+class SubscribingReadersListView(generics.ListAPIView):
+    permission_classes = [rest_permissions.IsAuthenticated]
+    queryset = models.Subscription.objects.all()
+    serializer_class = accounts_serializers.ReaderProfileSerializer
+
+    def get_queryset(self):
+        user = self.request.user.writerprofile
+        print(user)
+        return user.subscribing_readers.all()
