@@ -12,3 +12,6 @@ _Features_:
 
 ### 서버 구성도
 <img src="./architecture_diagram.png">
+
+### ERD
+<img src="./db_model.png">
