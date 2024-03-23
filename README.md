@@ -9,3 +9,6 @@ _Features_:
 - 작가 구독 및 프로필 확인
 - 이메일 작성 및 전송
 - 답장 크롤링 및 작성자 회신
+
+### 서버 구성도
+<img src="./architecture_diagram.png">
